@@ -1,0 +1,71 @@
+import React, { useContext, useEffect,useState } from 'react';
+import Card from 'react-bootstrap/Card';
+import { MyContext } from '../../../Context/Context';
+import './cardreseña.css'
+
+export const CardReseña = ({ viajeId }) => {
+  console.log(`🛠️ CardReseña recibida con viajeId:`, viajeId);
+  const { resenas, fetchResenasPorViaje } = useContext(MyContext);
+  const [resenasViaje, setResenasViaje] = useState([]);
+
+  useEffect(() => {
+    console.log(` CardReseña recibida con viajeId:`, viajeId);
+
+    if (!viajeId) { 
+      console.log(" No se recibió un viajeId en CardReseña.");
+      return;
+    }
+
+    if (!resenas || typeof resenas !== "object") {
+      console.log(" resenas no está definido o no es un objeto, no se puede acceder.");
+      return;
+    }
+
+    if (!resenas[viajeId]) {
+      fetchResenasPorViaje(viajeId);
+    }
+
+}, [viajeId, fetchResenasPorViaje]);
+
+
+
+useEffect(() => {
+  if (!viajeId || !resenas || typeof resenas !== "object") {
+    console.log(" No se pueden cargar las reseñas porque resenas o viajeId no están definidos.");
+    return;
+  }
+
+  if (resenas[viajeId]) {
+    console.log(" Nuevas reseñas detectadas:", resenas[viajeId]);
+    setResenasViaje(resenas[viajeId]); 
+  }
+}, [resenas, viajeId]);
+
+if (!resenasViaje || resenasViaje.length === 0) {
+  return <p>No hay reseñas para este viaje.</p>;
+}
+
+
+
+  return (
+    <div className="reseñas-container">
+      {resenasViaje.length > 0 ? (
+        resenasViaje.map((resena, index) => (  
+            <Card className="reseñas" key={index}>
+                <Card.Body>
+                    <Card.Title>({resena.valoracion} estrellas)</Card.Title> 
+                    <Card.Subtitle className="mb-2 text-muted" style={{ fontWeight: "bold" }}>
+                        @{resena.nombre} {resena.apellido}  
+                    </Card.Subtitle>
+                    <Card.Text>{resena.descripcion}</Card.Text>  
+                </Card.Body>
+            </Card>
+        ))
+    ) : (
+        <p>No hay reseñas para este viaje.</p>
+    )}
+    </div>
+  );
+};
+
+export default CardReseña;
